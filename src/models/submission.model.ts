@@ -1,23 +1,24 @@
-import { model, Schema } from "mongoose";
+import { Document, Schema, model } from "mongoose";
 
-export enum SubmissionLanguage {
-    CPP="cpp",
-    PYTHON="python"
-}
 export enum SubmissionStatus {
     COMPLETED = "completed",
     PENDING = "pending",
 }
+
+export enum SubmissionLanguage {
+    CPP = "cpp",
+    PYTHON = "python",
+}
+
 export interface ISubmissionData {
     testCaseId: string;
     status: string;
 }
-
-export interface ISubmission {
-    problemId:string;
-    code:string;
-    language:SubmissionLanguage;
-    status:SubmissionStatus;
+export interface ISubmission extends Document {
+    problemId: string;
+    code: string;
+    language: SubmissionLanguage;
+    status: SubmissionStatus;
     submissionData: ISubmissionData;
     createdAt: Date;
     updatedAt: Date;
@@ -50,6 +51,14 @@ const submissionSchema = new Schema<ISubmission>({
     }
 }, {
     timestamps: true,
+    toJSON: {
+        transform: (_, record) => {
+            delete (record as any).__v; 
+            (record as any).id = record._id;
+            delete (record as any)._id; 
+            return record;
+        }
+    }
 });
 
 submissionSchema.index({ status: 1, createdAt: -1 });
