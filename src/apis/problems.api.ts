@@ -34,7 +34,7 @@ export async function getProblemById(problemId: string): Promise<IProblemDetails
          if(response.data.success) {
             return response.data.data;
          }
-
+         console.log(response.data);
          throw new InternalServerError("Failed to get problem details");
     } catch(error) {
         logger.error(`Failed to get problem details: ${error}`);

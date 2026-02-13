@@ -22,7 +22,6 @@ export class SubmissionService implements ISubmissionService {
     }
 
     async createSubmission(submissionData: Partial<ISubmission>): Promise<ISubmission> {
-        // check if the problem exists
         if(!submissionData.problemId) {
             throw new BadRequestError("Problem ID is required");
         }
@@ -41,11 +40,9 @@ export class SubmissionService implements ISubmissionService {
             throw new NotFoundError("Problem not found or something went wrong");
         }
 
-        // add the submission payload to the db
 
         const submission = await this.submissionRepository.create(submissionData);
 
-        // submission to redis queue
         const jobId = await addSubmissionJob({
             submissionId: submission._id.toString(),
             problem,

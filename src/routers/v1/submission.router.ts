@@ -1,12 +1,39 @@
 import express from 'express';
-import { createSubmissionHandler, deleteSubmissionByIdHandler, getSubmissionByIdHandler, getSubmissionsByProblemIdHandler, updateSubmissionStatusHandler } from '../../controllers/submission.controller';
+import { validateRequestBody, validateQueryParams } from '../../validators';
+import { createSubmissionSchema, submissionQuerySchema, updateSubmissionStatusSchema } from '../../validators/submission.validator';
+import { SubmissionFactory } from '../../factory/submission.factory';
+
 
 const submissionRouter = express.Router();
 
-submissionRouter.post('/',createSubmissionHandler)
-submissionRouter.get('/',getSubmissionByIdHandler)
-submissionRouter.get('/problem/:problemId',getSubmissionsByProblemIdHandler)
-submissionRouter.delete('/:id',deleteSubmissionByIdHandler)
-submissionRouter.put('/:id/',updateSubmissionStatusHandler)
+const submissionController = SubmissionFactory.getSubmissionController();
+
+submissionRouter.post(
+    '/', 
+    validateRequestBody(createSubmissionSchema), 
+    submissionController.createSubmission
+);
+
+submissionRouter.get(
+    '/:id', 
+    submissionController.getSubmissionById
+);
+
+submissionRouter.get(
+    '/problem/:problemId', 
+    validateQueryParams(submissionQuerySchema),
+    submissionController.getSubmissionsByProblemId
+);
+
+submissionRouter.delete(
+    '/:id', 
+    submissionController.deleteSubmissionById
+);
+
+submissionRouter.patch(
+    '/:id/status', 
+    validateRequestBody(updateSubmissionStatusSchema),
+    submissionController.updateSubmissionStatus
+);
 
 export default submissionRouter;

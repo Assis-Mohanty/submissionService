@@ -1,32 +1,96 @@
-import { Request,Response } from "express";
-import { SubmissionRepository } from "../repository/submission.repository";
+import { NextFunction, Request, Response } from "express";
+import logger from "../config/logger.config";
 import { SubmissionService } from "../services/submission.service";
 
-const submissionService = new SubmissionService(new SubmissionRepository());
-export async function createSubmissionHandler (req:Request,res:Response) {
-    const reqBody= req.body;
-    const result = await submissionService.createSubmission(reqBody);
-    res.status(201).json(result);
-}
+export class SubmissionController {
+    private submissionService: SubmissionService;
 
-export async function getSubmissionByIdHandler (req:Request,res:Response) {
-    const submissionId = req.params.id;
-    const result = await submissionService.getSubmissionById(submissionId);
-    res.status(200).json(result);
-}
-export async function getSubmissionsByProblemIdHandler (req:Request,res:Response) {
-    const problemId = req.params.problemId;
-    const result = await submissionService.getSubmissionsByProblemId(problemId);
-    res.status(200).json(result);
-}
-export async function deleteSubmissionByIdHandler (req:Request,res:Response) {
-    const submissionId = req.params.id;
-    const result = await submissionService.deleteSubmissionById(submissionId);
-    res.status(200).json({ success: result });
-}
-export async function updateSubmissionStatusHandler (req:Request,res:Response) {
-    const submissionId = req.params.id;
-    const { status, submissionData } = req.body;
-    const result = await submissionService.updateSubmissionStatus(submissionId, status, submissionData);
-    res.status(200).json(result);
+    constructor(submissionService: SubmissionService) {
+        this.submissionService = submissionService;
+    }
+
+    createSubmission = async (req: Request, res: Response, next: NextFunction) => {
+        logger.info("Creating new submission", { body: req.body });
+        
+        const submission = await this.submissionService.createSubmission(req.body);
+        
+        logger.info("Submission created successfully", { submissionId: submission._id });
+        
+        res.status(201).json({
+            success: true,
+            message: "Submission created successfully",
+            data: submission
+        });
+    };
+
+    getSubmissionById = async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        logger.info("Fetching submission by ID", { submissionId: id });
+        
+        const submission = await this.submissionService.getSubmissionById(id);
+        
+        logger.info("Submission fetched successfully", { submissionId: id });
+        
+        res.status(200).json({
+            success: true,
+            message: "Submission fetched successfully",
+            data: submission
+        });
+    };
+
+    getSubmissionsByProblemId = async (req: Request, res: Response, next: NextFunction) => {
+        const { problemId } = req.params;
+        logger.info("Fetching submissions by problem ID", { problemId });
+        
+        const submissions = await this.submissionService.getSubmissionsByProblemId(problemId);
+        
+        logger.info("Submissions fetched successfully", { 
+            problemId, 
+            count: submissions.length 
+        });
+        
+        res.status(200).json({
+            success: true,
+            message: "Submissions fetched successfully",
+            data: submissions
+        });
+    };
+
+    deleteSubmissionById = async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        logger.info("Deleting submission", { submissionId: id });
+        
+        await this.submissionService.deleteSubmissionById(id);
+        
+        logger.info("Submission deleted successfully", { submissionId: id });
+        
+        res.status(200).json({
+            success: true,
+            message: "Submission deleted successfully"
+        });
+    };
+
+    updateSubmissionStatus = async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const { status, submissionData } = req.body;
+        
+        logger.info("Updating submission status", { 
+            submissionId: id, 
+            status ,
+            submissionData
+        });
+        
+        const submission = await this.submissionService.updateSubmissionStatus(id, status, submissionData);
+        
+        logger.info("Submission status updated successfully", { 
+            submissionId: id, 
+            status 
+        });
+        
+        res.status(200).json({
+            success: true,
+            message: "Submission status updated successfully",
+            data: submission
+        });
+    };
 }
