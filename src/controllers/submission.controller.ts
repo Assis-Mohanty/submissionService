@@ -10,9 +10,15 @@ export class SubmissionController {
     }
 
     createSubmission = async (req: Request, res: Response, next: NextFunction) => {
+        const id = req.params.id
         logger.info("Creating new submission", { body: req.body });
-        
-        const submission = await this.submissionService.createSubmission(req.body);
+        const userId = req.get('x-user-id');
+        const reqBody = {
+            id,
+            userId ,
+            ...req.body
+        }
+        const submission = await this.submissionService.createSubmission(reqBody);
         
         logger.info("Submission created successfully", { submissionId: submission._id });
         
@@ -24,12 +30,13 @@ export class SubmissionController {
     };
 
     getSubmissionById = async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params;
-        logger.info("Fetching submission by ID", { submissionId: id });
+        const id = req.params.id
+        
+        logger.info("Fetching submission by ID", { submissionId: id});
         
         const submission = await this.submissionService.getSubmissionById(id);
         
-        logger.info("Submission fetched successfully", { submissionId: id });
+        logger.info("Submission fetched successfully", { submissionId: id  });
         
         res.status(200).json({
             success: true,
@@ -57,7 +64,7 @@ export class SubmissionController {
     };
 
     deleteSubmissionById = async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params;
+        const id:any= req.get('x-user-id');
         logger.info("Deleting submission", { submissionId: id });
         
         await this.submissionService.deleteSubmissionById(id);
@@ -71,7 +78,7 @@ export class SubmissionController {
     };
 
     updateSubmissionStatus = async (req: Request, res: Response, next: NextFunction) => {
-        const { id } = req.params;
+        const id= req.params.id
         const { status, submissionData } = req.body;
         
         logger.info("Updating submission status", { 

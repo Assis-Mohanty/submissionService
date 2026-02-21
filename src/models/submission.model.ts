@@ -10,7 +10,7 @@ export enum SubmissionLanguage {
     PYTHON = "python",
 }
 
-interface ISubmissionData {
+export interface ISubmissionData {
     testCaseId: string;
     status: string; 
 }
