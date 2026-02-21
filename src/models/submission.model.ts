@@ -10,10 +10,15 @@ export enum SubmissionLanguage {
     PYTHON = "python",
 }
 
-export interface ISubmissionData {
+interface ISubmissionData {
     testCaseId: string;
-    status: string;
+    status: string; 
 }
+const submissionDataSchema = new Schema<ISubmissionData>({
+    testCaseId: { type: String, required: true },
+    status: { type: String, required: true }
+}, { _id: false });
+
 export interface ISubmission extends Document {
     userId:string
     problemId: string;
@@ -21,7 +26,7 @@ export interface ISubmission extends Document {
     code: string;
     language: SubmissionLanguage;
     status: SubmissionStatus;
-    submissionData: ISubmissionData;
+    submissionData: ISubmissionData[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -55,9 +60,9 @@ const submissionSchema = new Schema<ISubmission>({
         enum: Object.values(SubmissionStatus)
     },
     submissionData: {
-        type: Object,
+        type: [submissionDataSchema],
         required: true,
-        default: {}
+        default: []
     }
 }, {
     timestamps: true,
