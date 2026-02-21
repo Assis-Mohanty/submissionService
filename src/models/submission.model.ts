@@ -15,7 +15,9 @@ export interface ISubmissionData {
     status: string;
 }
 export interface ISubmission extends Document {
+    userId:string
     problemId: string;
+    competitionId?: string;
     code: string;
     language: SubmissionLanguage;
     status: SubmissionStatus;
@@ -25,9 +27,17 @@ export interface ISubmission extends Document {
 }
 
 const submissionSchema = new Schema<ISubmission>({
+    userId:{
+        type:String,
+        required:true
+    },
     problemId: { 
         type: String, 
         required: [true, "Problem Id required for the submission"] 
+    },
+    competitionId:{
+        type:String,
+        required:false
     },
     code: { 
         type: String, 
@@ -62,5 +72,5 @@ const submissionSchema = new Schema<ISubmission>({
 });
 
 submissionSchema.index({ status: 1, createdAt: -1 });
-
+submissionSchema.index({ competitionId: 1, problemId: 1 }); 
 export const Submission = model<ISubmission>("Submission", submissionSchema);
