@@ -10,11 +10,9 @@ export class SubmissionController {
     }
 
     createSubmission = async (req: Request, res: Response, next: NextFunction) => {
-        const id = req.params.id
         logger.info("Creating new submission", { body: req.body });
         const userId = req.get('x-user-id');
         const reqBody = {
-            id,
             userId ,
             ...req.body
         }

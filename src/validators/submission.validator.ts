@@ -2,6 +2,7 @@ import { z } from "zod";
 import { SubmissionLanguage, SubmissionStatus } from "../models/submission.model";
 
 export const createSubmissionSchema = z.object({
+    competitionId:z.string().optional(),
     problemId: z.string().min(1, "Problem ID is required"),
     code: z.string().min(1, "Code is required"),
     language: z.nativeEnum(SubmissionLanguage, {
